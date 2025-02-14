@@ -1,7 +1,12 @@
 fastapi
 uvicorn
-gitpython
-duckdb
-ollama
-marktown
+requests
 pillow
+pandas
+markdown
+beautifulsoup4
+sqlite3
+duckdb
+whisper
+gitpython
+ollama  # If you need to use the Python Ollama client
