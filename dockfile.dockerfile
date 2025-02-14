@@ -13,8 +13,9 @@ WORKDIR /app
 # Copy project files into the container
 COPY . .
 
-# Install Python dependencies
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+
 
 # Expose FastAPI port
 EXPOSE 8000
