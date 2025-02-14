@@ -5,7 +5,6 @@ pillow
 pandas
 markdown
 beautifulsoup4
-sqlite3
 duckdb
 whisper
 gitpython
