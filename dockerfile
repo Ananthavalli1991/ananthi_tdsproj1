@@ -8,9 +8,6 @@ RUN apt-get update && apt-get install -y git curl \
 ffmpeg \
 libsndfile1 \&& rm -rf /var/lib/apt/lists/*
 
-RUN node -v && npm -v
-
-
 RUN apt-get update && apt-get install -y tesseract-ocr
 
 RUN apt-get update && apt-get install -y sqlite3
