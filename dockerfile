@@ -9,7 +9,7 @@ RUN npm install -g prettier@3.4.2
 RUN apt-get update && apt-get install -y sqlite3
 
 # Install Ollama (for LLM processing)
-RUN curl -fsSL https://ollama.ai/install.sh | sh
+#RUN curl -fsSL https://ollama.ai/install.sh | sh
 
 # Set the working directory inside the container
 WORKDIR /app
