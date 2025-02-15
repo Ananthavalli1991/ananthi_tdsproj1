@@ -8,7 +8,8 @@ RUN apt-get update && apt-get install -y git curl \
 ffmpeg \
 libsndfile1 \&& rm -rf /var/lib/apt/lists/*
 
-RUN npm install -g prettier@3.4.2
+RUN node -v && npm -v
+
 
 RUN apt-get update && apt-get install -y tesseract-ocr
 
