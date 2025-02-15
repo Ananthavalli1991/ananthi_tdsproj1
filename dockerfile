@@ -1,5 +1,5 @@
 # Use a lightweight Python image
-FROM python:3.11-slim
+#FROM python:3.11-slim
 FROM node:18-bullseye as node
 FROM python:3.9
 
