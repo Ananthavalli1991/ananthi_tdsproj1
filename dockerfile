@@ -14,8 +14,13 @@ WORKDIR /app
 COPY . .
 
 COPY requirements.txt .
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir-r requirements.txt
 
+RUN mkdir -p /data
+
+ARG AIPROXY_TOKEN
+ENV AIPROXY_TOKEN={$AIPROXY_TOKEN}
+ENV PIP_ROOT_USER_ACTION=ignore
 
 # Expose FastAPI port
 EXPOSE 8000
