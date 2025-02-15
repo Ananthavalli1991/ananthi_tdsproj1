@@ -4,22 +4,64 @@ import json
 import sqlite3
 from pathlib import Path
 from datetime import datetime
+import os
+import openai
 
 app = FastAPI()
+@app.post("/run")
+def run_task(task: str = Query(..., description="Plain-English task description")):
+    return {"status": "success", "output": f"Task received: {task}"}
+def classify_task(task: str):
+    client = openai.Client(api_key="AIPROXY_TOKEN")
+    
+    response = client.chat.completions.create(
+        model="GPT-4o-Mini",
+        messages=[{"role": "user", "content": f"Classify this task into A1-A10: {task}"}]
+    )
+    
+    return response.choices[0].message.content
 
+# Assuming datagen.py is in the same directory as your notebook
+import datagen  # Import the datagen module
+
+# Set the email and root directory in the config dictionary
+datagen.config["email"] = "23f1001029@ds.study.iitm.ac.in"  # Replace with your actual email
+datagen.config["root"] = "C://Users/DELL/data"  # Or any desired output directory
+
+# Call the functions to generate the data
+datagen.a2_format_markdown()
+datagen.a3_dates()
+datagen.a4_contacts()
+datagen.a5_logs()
+datagen.a6_docs()
+datagen.a7_email()
+datagen.a8_credit_card_image()
+datagen.a9_comments()
+datagen.a10_ticket_sales()
+
+print("Data generation completed.")
+
+
+DATA_DIR = "/data"
+@app.get("/execute_task")
 def execute_task(task: str) -> str:
     """
-    Use Ollama to interpret the task and match it to a known operation.
+    Use Ollama to classify the task and execute the corresponding function.
     """
     try:
-        result = subprocess.run(["ollama", "run", "mistral", f"Classify this task into A1-A10: {task}"], capture_output=True, text=True)
+        result = subprocess.run(["ollama", "run", "mistral", f"Classify this task into A1-A10 or B1-B10: {task}"], 
+                                capture_output=True, text=True)
+        
         if result.returncode != 0:
             raise RuntimeError(f"Ollama processing error: {result.stderr}")
-        task_category = result.stdout.strip()
 
-        # Match task to predefined functions
+        task_category = result.stdout.strip().split()[0]  # Ensure clean response
+        
+        print(f"Ollama classified task as: {task_category}")  # Debugging step
+
+        # Define task mapping
         task_mapping = {
-            "A1": task_A1,
+            "A1": task_A1,  # Add the missing A1 function
             "A2": task_A2,
             "A3": task_A3,
             "A4": task_A4,
@@ -41,38 +83,28 @@ def execute_task(task: str) -> str:
             "B10": task_B10
         }
 
+        # Check if task exists before calling it
         if task_category in task_mapping:
             return task_mapping[task_category]()
         else:
-            raise RuntimeError(f"Task not recognized: {task_category}")
+            raise RuntimeError(f"Unrecognized task: {task_category}")
 
     except Exception as e:
         raise RuntimeError(f"LLM processing error: {str(e)}")
 
-@app.post("/run")
-def run_task(task: str = Query(..., description="Plain-English task description")):
-    try:
-        if not task.strip():
-            raise HTTPException(status_code=400, detail="Task description cannot be empty")
-        
-        result = execute_task(task)
-        return {"status": "success", "output": result}
-    except HTTPException as e:
-        raise e  
-    except RuntimeError as e:
-        raise HTTPException(status_code=500, detail=str(e))
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
 def task_A1():
     subprocess.run(["pip", "install", "uv"], check=True)
-    subprocess.run(["python", "-m", "uv", "https://raw.githubusercontent.com/sanand0/tools-in-data-science-public/tds-2025-01/project-1/datagen.py", "user@example.com"], check=True)
-    return "Data generation completed."
+    subprocess.run(["python", "-m", "uv", "https://raw.githubusercontent.com/sanand0/tools-in-data-science-public/tds-2025-01/project-1/datagen.py", "23f1001026@ds.studt.iitm.ac.in"], check=True)
+     # Use "data" inside the project
+    #return "Data generation completed."
 
 def task_A2():
+    # List of date formats to try
     subprocess.run(["npx", "prettier@3.4.2", "--write", "/data/format.md"], check=True)
     return "Formatted /data/format.md"
 
 def task_A3():
+    #count Wednesday
     wednesdays = 0
     with open("/data/dates.txt", "r") as file:
         for line in file:
@@ -84,6 +116,7 @@ def task_A3():
     return f"Wednesdays counted: {wednesdays}"
 
 def task_A4():
+    #sort_contacts
     with open("/data/contacts.json", "r") as file:
         contacts = json.load(file)
     sorted_contacts = sorted(contacts, key=lambda x: (x["last_name"], x["first_name"]))
@@ -92,6 +125,7 @@ def task_A4():
     return "Sorted contacts.json"
 
 def task_A5():
+    # Get the first line of the 10 most recent log files
     log_files = sorted(Path("/data/logs/").glob("*.log"), key=lambda x: x.stat().st_mtime, reverse=True)[:10]
     with open("/data/logs-recent.txt", "w") as outfile:
         for log_file in log_files:
@@ -101,6 +135,7 @@ def task_A5():
     return "Extracted first lines of 10 recent log files."
 
 def task_A6():
+    # Extract the first H1 from each file
     index = {}
     for md_file in Path("/data/docs/").glob("*.md"):
         with open(md_file, "r") as file:
@@ -113,6 +148,7 @@ def task_A6():
     return "Created index.json"
 
 def task_A7():
+    #Extract the sender's email address
     with open("/data/email.txt", "r") as file:
         email_content = file.read()
     result = subprocess.run(["ollama", "run", "mistral", f"Extract the sender email: {email_content}"], capture_output=True, text=True)
@@ -122,6 +158,7 @@ def task_A7():
     return f"Extracted sender email: {email_address}"
 
 def task_A8():
+    #extract_credit_card_number
     result = subprocess.run(["ollama", "run", "mistral", "Extract credit card number from /data/credit-card.png"], capture_output=True, text=True)
     card_number = result.stdout.strip().replace(" ", "")
     with open("/data/credit-card.txt", "w") as file:
@@ -129,6 +166,7 @@ def task_A8():
     return "Extracted credit card number."
 
 def task_A9():
+    #Find the most similar pair of comments
     with open("/data/comments.txt", "r") as file:
         comments = file.readlines()
     # Find most similar comments using embeddings (mocked)
@@ -138,6 +176,7 @@ def task_A9():
     return "Extracted most similar comments."
 
 def task_A10():
+    #Query to calculate total sales for "Gold" ticket type
     conn = sqlite3.connect("/data/ticket-sales.db")
     cursor = conn.cursor()
     cursor.execute("SELECT SUM(units * price) FROM tickets WHERE type = 'Gold'")
@@ -204,6 +243,7 @@ from bs4 import BeautifulSoup
 #B6: Clone a Git Repo and Make a Commit
 def task_B6(url: str, output_file: str):
     response = requests.get(url)
+
     soup = BeautifulSoup(response.text, "html.parser")
     text = soup.get_text()
     with task_B2(output_file, "w") as file:
