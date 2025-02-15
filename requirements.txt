@@ -4,9 +4,12 @@ requests
 pillow
 pandas
 markdown
+pytesseract
+pydub
+speechrecognition
+ffmpeg-python  # Needed
 beautifulsoup4
 duckdb
 whisper
-sqlite3
 gitpython
  # If you need to use the Python Ollama client
