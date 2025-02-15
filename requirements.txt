@@ -9,4 +9,4 @@ duckdb
 whisper
 sqlite3
 gitpython
-ollama  # If you need to use the Python Ollama client
+ # If you need to use the Python Ollama client
