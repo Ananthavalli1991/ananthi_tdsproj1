@@ -7,5 +7,6 @@ markdown
 beautifulsoup4
 duckdb
 whisper
+sqlite3
 gitpython
 ollama  # If you need to use the Python Ollama client
