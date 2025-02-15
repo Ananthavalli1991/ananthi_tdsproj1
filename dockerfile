@@ -6,6 +6,8 @@ RUN apt-get update && apt-get install -y git curl && rm -rf /var/lib/apt/lists/*
 
 RUN npm install -g prettier@3.4.2
 
+RUN apt-get update && apt-get install -y tesseract-ocr
+
 RUN apt-get update && apt-get install -y sqlite3
 
 # Install Ollama (for LLM processing)
