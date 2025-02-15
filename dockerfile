@@ -4,6 +4,9 @@ FROM python:3.11-slim
 # Install system dependencies
 RUN apt-get update && apt-get install -y git curl && rm -rf /var/lib/apt/lists/*
 
+RUN npm install -g prettier@3.4.2
+
+
 # Install Ollama (for LLM processing)
 RUN curl -fsSL https://ollama.ai/install.sh | sh
 
